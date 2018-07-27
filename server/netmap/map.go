@@ -7,28 +7,28 @@ import (
 	"net"
 	"time"
 	// third party
-	_"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Map struct {
 	globals *Globals
-	Nodes map[uint32]*Node
+	Nodes   map[uint32]*Node
 }
 
 func (this *Map) Load(dsn string) {
 	// Connect to database
 	db, err := sql.Open("mysql", dsn)
-	HandleError(err);
+	HandleError(err)
 	defer db.Close()
 	// Test database connection
 	err = db.Ping()
-	HandleError(err);
+	HandleError(err)
 	log.Println("Connected to database")
 	// Init
 	this.Nodes = make(map[uint32]*Node)
 	// Load nodes
-	rows, err := db.Query("SELECT id, IFNULL(ip, 0), status FROM nodes");
-	HandleError(err);
+	rows, err := db.Query("SELECT id, IFNULL(ip, 0), status FROM nodes")
+	HandleError(err)
 	for rows.Next() {
 		var ip uint32
 		var node Node

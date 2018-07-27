@@ -1,2 +1,2 @@
-# map
+# netmap
 Network monitoring tool

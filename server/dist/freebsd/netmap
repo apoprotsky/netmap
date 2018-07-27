@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+#
+# PROVIDE: netmap
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+#
+#
+# Add the following lines to /etc/rc.conf to enable netmap:
+#
+# netmap_enable="YES"
+#
+#
+# Options:
+#
+# netmap_enable:       Service status - YES or NO
+#                      Default: NO
+# netmap_config_file:  Netmap configuration file
+#                      Default: /usr/local/etc/netmap.ini
+# netmap_log_file:     Netmap log file
+#                      Default: /var/log/netmap.log
+# netmap_user:         The user account netmap daemon runs as
+#                      Default: netmap
+
+. /etc/rc.subr
+
+name=netmap
+rcvar=netmap_enable
+
+start_cmd="${name}_start"
+
+load_rc_config $name
+
+: ${netmap_enable:=NO}
+: ${netmap_config_file:=/usr/local/etc/netmap.ini}
+: ${netmap_log_file:=/var/log/netmap.log}
+: ${netmap_user:=netmap}
+
+command=/usr/local/bin/netmap
+pidfile=/var/run/netmap.pid
+flags="${netmap_config_file:+-config=${netmap_config_file}}"
+
+netmap_start() {
+    echo "Starting netmap"
+    touch ${pidfile} && chown ${netmap_user} ${pidfile}
+    touch ${netmap_log_file} && chown ${netmap_user} ${netmap_log_file}
+    /usr/sbin/daemon -cf -p ${pidfile} -o ${netmap_log_file} -u ${netmap_user} ${command} ${flags}
+}
+
+netmap_cleanup() {
+    [ -f ${pidfile} ] && rm ${pidfile}
+}
+
+run_rc_command $1

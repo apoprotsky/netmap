@@ -8,27 +8,28 @@ import (
 	"time"
 )
 
-type NodeState int8;
+type NodeState int8
 
 const (
-	NodeState_Up = iota
-	NodeState_Notice = iota
+	NodeState_Up      = iota
+	NodeState_Notice  = iota
 	NodeState_Warning = iota
-	NodeState_Down = iota
-	NodeState_NoLink = iota
+	NodeState_Down    = iota
+	NodeState_NoLink  = iota
 )
+
 var NodeState_Timeout float64
 
 type Node struct {
-	Id uint32
-	Ip net.IPAddr
-	State NodeState
-	Last time.Time
+	Id     uint32
+	Ip     net.IPAddr
+	State  NodeState
+	Last   time.Time
 	Online bool
 }
 
 func (this *Node) GetJson() string {
-	return fmt.Sprintf("{\"code\":0,\"data\":{\"id\":%d,\"state\":%d}}", this.Id, this.State);
+	return fmt.Sprintf("{\"code\":0,\"data\":{\"id\":%d,\"state\":%d}}", this.Id, this.State)
 }
 
 func (this *Node) ChangeState(delta NodeState) bool {

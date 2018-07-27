@@ -13,8 +13,8 @@ import (
 )
 
 type Network struct {
-	globals *Globals
-	socket *icmp.PacketConn
+	globals  *Globals
+	socket   *icmp.PacketConn
 	upgrader *websocket.Upgrader
 }
 
@@ -23,7 +23,7 @@ func (this *Network) Run(globals *Globals) {
 	this.globals = globals
 	NodeState_Timeout = float64(globals.Ping + globals.Timeout)
 	// ICMP
-	this.socket, err = icmp.ListenPacket("ip4:icmp", "0.0.0.0")
+	this.socket, err = icmp.ListenPacket("ip4:icmp", globals.Icmp)
 	HandleError(err)
 	defer this.socket.Close()
 	// Ping
@@ -35,16 +35,16 @@ func (this *Network) Run(globals *Globals) {
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
 	http.HandleFunc("/", this.handler)
-	log.Fatal(http.ListenAndServe(this.globals.Bind, nil))
+	log.Fatal(http.ListenAndServe(this.globals.Http, nil))
 }
 
 // Connection handler
 func (this *Network) handler(response http.ResponseWriter, request *http.Request) {
 	connection, err := this.upgrader.Upgrade(response, request, nil)
-	HandleError(err);
+	HandleError(err)
 	client := &Client{
 		connection: connection,
-		send: make(chan []byte, 1024),
+		send:       make(chan []byte, 1024),
 	}
 	this.globals.Clients.add <- client
 	for _, node := range this.globals.Map.Nodes {
@@ -61,7 +61,7 @@ func (this *Network) pingLoop() {
 	message := icmp.Message{
 		Type: ipv4.ICMPTypeEcho,
 		Code: 0,
-		Body: &icmp.Echo{ ID: 1, Seq: 1 },
+		Body: &icmp.Echo{ID: 1, Seq: 1},
 	}
 	packet, err := message.Marshal(nil)
 	HandleError(err)
@@ -70,8 +70,7 @@ func (this *Network) pingLoop() {
 			if node.Ip.String() == "0.0.0.0" {
 				continue
 			}
-			_, err := this.socket.WriteTo(packet, &node.Ip);
-			HandleError(err)
+			this.socket.WriteTo(packet, &node.Ip)
 			time.Sleep(time.Millisecond)
 		}
 		time.Sleep(time.Duration(this.globals.Ping) * time.Second)

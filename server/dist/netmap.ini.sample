@@ -1,0 +1,20 @@
+# Database configuration
+host = localhost
+port = 3306
+database = map
+user = root
+password =
+
+# Bind address for http/websocket
+http = 0.0.0.0:8000
+# Bind adress for icmp socket
+icmp = 0.0.0.0
+
+# Time in seconds between ping cycles
+ping = 5
+# Timeout of icmp answer
+timeout = 3
+
+# Period in seconds to run forced garbage collection
+# Zero disables this feature
+free = 0

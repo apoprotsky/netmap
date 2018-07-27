@@ -9,11 +9,12 @@ import (
 )
 
 type Globals struct {
-	Bind string
-	Ping uint
+	Http    string
+	Icmp    string
+	Ping    uint
 	Timeout uint
-	Free uint
-	Map *Map
+	Free    uint
+	Map     *Map
 	Clients *Clients
 	Network *Network
 }
